@@ -134,21 +134,27 @@ const container = document.getElementById("projects");
 
 async function loadProjects() {
     try {
-        // Scratch API über CORS-Proxy
+        // Scratch API über stabilen CORS-Proxy
         const url = `https://api.scratch.mit.edu/users/${username}/projects`;
-        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+
+        const res = await fetch(proxyUrl);
         const data = await res.json();
+
+        // Debug
+        console.log("DATA:", data);
 
         data.forEach(p => {
             const card = document.createElement("div");
             card.className = "card";
 
+            // Sicherer Zugriff auf Felder
             const title = p.title || "Kein Titel";
-            const views = p.stats?.views ?? 0;
-            const img = p.image || `https://cdn2.scratch.mit.edu/get_image/project/${p.id}_480x360.png`;
+            const views = p.stats?.views ?? 0;        // views aus stats
+            const image = p.image || `https://cdn2.scratch.mit.edu/get_image/project/${p.id}_480x360.png`;
 
             card.innerHTML = `
-                <img src="${img}">
+                <img src="${image}">
                 <div class="card-info">
                     <b>${title}</b><br>
                     👁 ${views}
@@ -161,7 +167,7 @@ async function loadProjects() {
 
     } catch (err) {
         console.error("Fehler beim Laden der Projekte:", err);
-        container.innerHTML = "<p>⚠️ Projekte konnten nicht geladen werden.</p>";
+        container.innerHTML = "<p>⚠️ Projekte konnten nicht geladen werden. Check Konsole!</p>";
     }
 }
 
