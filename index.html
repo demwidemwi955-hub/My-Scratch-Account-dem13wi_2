@@ -129,36 +129,43 @@ button {
 </div>
 
 <script>
-const projects = [
-    {
-        id: 123456789,
-        title: "Mein Spiel 1",
-        views: 100
-    },
-    {
-        id: 987654321,
-        title: "Mein Spiel 2",
-        views: 250
-    }
-];
-
+const username = "dem13wi_2";
 const container = document.getElementById("projects");
 
-projects.forEach(p => {
-    const card = document.createElement("div");
-    card.className = "card";
+async function loadProjects() {
+    try {
+        // Scratch API über CORS-Proxy
+        const url = `https://api.scratch.mit.edu/users/${username}/projects`;
+        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+        const data = await res.json();
 
-    card.innerHTML = `
-        <img src="https://uploads.scratch.mit.edu/get_image/project/${p.id}_480x360.png">
-        <div class="card-info">
-            <b>${p.title}</b><br>
-            👁 ${p.views}
-        </div>
-    `;
+        data.forEach(p => {
+            const card = document.createElement("div");
+            card.className = "card";
 
-    card.onclick = () => openProject(p.id);
-    container.appendChild(card);
-});
+            const title = p.title || "Kein Titel";
+            const views = p.stats?.views ?? 0;
+            const img = p.image || `https://cdn2.scratch.mit.edu/get_image/project/${p.id}_480x360.png`;
+
+            card.innerHTML = `
+                <img src="${img}">
+                <div class="card-info">
+                    <b>${title}</b><br>
+                    👁 ${views}
+                </div>
+            `;
+
+            card.onclick = () => openProject(p.id);
+            container.appendChild(card);
+        });
+
+    } catch (err) {
+        console.error("Fehler beim Laden der Projekte:", err);
+        container.innerHTML = "<p>⚠️ Projekte konnten nicht geladen werden.</p>";
+    }
+}
+
+loadProjects();
 
 function openProject(id){
     document.getElementById("player").style.display = "flex";
