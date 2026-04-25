@@ -240,6 +240,99 @@ textarea {
     padding: 20px;
     font-size: 0.9em;
 }
+
+.section {
+    background: white;
+    color: black;
+    padding: 40px;
+    margin-top: 30px;
+    border-radius: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.section h2 {
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+.grid-hidden {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.grid-hidden.show {
+    max-height: 10000px;
+}
+
+.toggle-btn {
+    display: block;
+    margin: 20px auto 0;
+    padding: 12px 30px;
+    background: #4facfe;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.toggle-btn:hover {
+    background: #00f2fe;
+    color: black;
+    transform: translateY(-2px);
+}
+
+.user-card {
+    background: #f0f0f0;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.user-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+.user-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    border: 3px solid #4facfe;
+}
+
+.user-card h3 {
+    margin: 10px 0 5px;
+    color: black;
+    font-size: 1.1em;
+}
+
+.user-card p {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+
 </style>
 </head>
 
@@ -270,7 +363,34 @@ textarea {
 
 <div class="projects" id="projects">
     <h2>🎮 Meine Spiele</h2>
+    <p style="text-align: center; color: #666; margin-bottom: 30px;">Die neuesten Projekte, die ich erstellt habe</p>
     <div class="grid" id="projects-grid"></div>
+    <div class="grid-hidden" id="projects-more"></div>
+    <button class="toggle-btn" id="projects-btn" onclick="toggleProjects()" style="display: none;">📂 Mehr Projekte anzeigen</button>
+</div>
+
+<div class="section">
+    <h2>⭐ Meine Favoriten</h2>
+    <p class="section-subtitle">Projekte von anderen Scratchern, die mir gefallen</p>
+    <div class="grid" id="favorites-grid"></div>
+    <div class="grid-hidden" id="favorites-more"></div>
+    <button class="toggle-btn" id="favorites-btn" onclick="toggleFavorites()" style="display: none;">📂 Mehr Favoriten anzeigen</button>
+</div>
+
+<div class="section">
+    <h2>👥 Profile, denen ich folge</h2>
+    <p class="section-subtitle">Scratcher und Creator, deren Inhalte ich mag</p>
+    <div class="grid" id="following-grid"></div>
+    <div class="grid-hidden" id="following-more"></div>
+    <button class="toggle-btn" id="following-btn" onclick="toggleFollowing()" style="display: none;">👥 Mehr Profile anzeigen</button>
+</div>
+
+<div class="section">
+    <h2>🌟 Meine Follower</h2>
+    <p class="section-subtitle">Scratcher, die mir folgen</p>
+    <div class="grid" id="followers-grid"></div>
+    <div class="grid-hidden" id="followers-more"></div>
+    <button class="toggle-btn" id="followers-btn" onclick="toggleFollowers()" style="display: none;">👥 Mehr Follower anzeigen</button>
 </div>
 
 <div class="player" id="player">
@@ -292,54 +412,193 @@ textarea {
 
 <script>
 const username = "dem13wi_2";
-const container = document.getElementById("projects-grid");
 
+// ===== PROJECTS =====
 async function loadProjects() {
     try {
-        const url = `https://api.scratch.mit.edu/users/${username}/projects`;
-        const proxyUrl = `https://corsproxy.io/?${url}`;
+        const url = "https://api.scratch.mit.edu/users/" + username + "/projects";
+        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
         const res = await fetch(proxyUrl);
         const data = await res.json();
+        const projects = JSON.parse(data.contents);
 
-        data.forEach(p => {
-            const card = document.createElement("div");
-            card.className = "card";
+        const firstGrid = document.getElementById("projects-grid");
+        const moreGrid = document.getElementById("projects-more");
+        const btn = document.getElementById("projects-btn");
 
-            const title = p.title || "Kein Titel";
-            const views = p.stats?.views ?? 0;
-            const image = p.image || `https://cdn2.scratch.mit.edu/get_image/project/${p.id}_480x360.png`;
-
-            card.innerHTML = `
-                <img src="${image}">
-                <div class="card-info">
-                    <b>${title}</b><br>
-                    👁 ${views}
-                </div>
-            `;
-
-            card.onclick = () => openProject(p.id);
-            container.appendChild(card);
+        projects.slice(0, 5).forEach(p => {
+            firstGrid.appendChild(createProjectCard(p));
         });
 
+        if (projects.length > 5) {
+            projects.slice(5).forEach(p => {
+                moreGrid.appendChild(createProjectCard(p));
+            });
+            btn.style.display = "block";
+        }
     } catch (err) {
-        container.innerHTML = "<p>⚠️ Projekte konnten nicht geladen werden.</p>";
-        setTimeout(() => {
-            window.location.href = "./error.html";
-        }, 1000);
+        console.log("Fehler beim Laden von Projekten:", err);
+        document.getElementById("projects-grid").innerHTML = "<p>⚠️ Projekte konnten nicht geladen werden.</p>";
     }
 }
 
-function openProject(id){
-    document.getElementById("player").style.display = "flex";
-    document.getElementById("frame").src = `https://turbowarp.org/${id}/embed`;
+function createProjectCard(p) {
+    const card = document.createElement("div");
+    card.className = "card";
+    const title = p.title || "Kein Titel";
+    const views = p.stats?.views ?? 0;
+    const image = p.image || "https://cdn2.scratch.mit.edu/get_image/project/" + p.id + "_480x360.png";
+    card.innerHTML = '<img src="' + image + '">' + 
+        '<div class="card-info">' +
+        '<b>' + title + '</b><br>' +
+        '👁 ' + views +
+        '</div>';
+    card.onclick = function() { openProject(p.id); };
+    return card;
 }
 
-function closePlayer(){
+function toggleProjects() {
+    const moreGrid = document.getElementById("projects-more");
+    const btn = document.getElementById("projects-btn");
+    moreGrid.classList.toggle("show");
+    btn.textContent = moreGrid.classList.contains("show") ? "📂 Weniger Projekte anzeigen" : "📂 Mehr Projekte anzeigen";
+}
+
+// ===== FAVORITES =====
+async function loadFavorites() {
+    try {
+        const url = "https://api.scratch.mit.edu/users/" + username + "/favorites";
+        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+        const favorites = JSON.parse(data.contents);
+
+        const firstGrid = document.getElementById("favorites-grid");
+        const moreGrid = document.getElementById("favorites-more");
+        const btn = document.getElementById("favorites-btn");
+
+        favorites.slice(0, 5).forEach(p => {
+            firstGrid.appendChild(createProjectCard(p));
+        });
+
+        if (favorites.length > 5) {
+            favorites.slice(5).forEach(p => {
+                moreGrid.appendChild(createProjectCard(p));
+            });
+            btn.style.display = "block";
+        }
+    } catch (err) {
+        console.log("Fehler beim Laden von Favoriten:", err);
+        document.getElementById("favorites-grid").innerHTML = "<p>⚠️ Favoriten konnten nicht geladen werden.</p>";
+    }
+}
+
+function toggleFavorites() {
+    const moreGrid = document.getElementById("favorites-more");
+    const btn = document.getElementById("favorites-btn");
+    moreGrid.classList.toggle("show");
+    btn.textContent = moreGrid.classList.contains("show") ? "📂 Weniger Favoriten anzeigen" : "📂 Mehr Favoriten anzeigen";
+}
+
+// ===== FOLLOWING =====
+async function loadFollowing() {
+    try {
+        const url = "https://api.scratch.mit.edu/users/" + username + "/following";
+        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+        const following = JSON.parse(data.contents);
+
+        const firstGrid = document.getElementById("following-grid");
+        const moreGrid = document.getElementById("following-more");
+        const btn = document.getElementById("following-btn");
+
+        following.slice(0, 5).forEach(u => {
+            firstGrid.appendChild(createUserCard(u));
+        });
+
+        if (following.length > 5) {
+            following.slice(5).forEach(u => {
+                moreGrid.appendChild(createUserCard(u));
+            });
+            btn.style.display = "block";
+        }
+    } catch (err) {
+        console.log("Fehler beim Laden von Following:", err);
+        document.getElementById("following-grid").innerHTML = "<p>⚠️ Profile konnten nicht geladen werden.</p>";
+    }
+}
+
+function toggleFollowing() {
+    const moreGrid = document.getElementById("following-more");
+    const btn = document.getElementById("following-btn");
+    moreGrid.classList.toggle("show");
+    btn.textContent = moreGrid.classList.contains("show") ? "👥 Weniger Profile anzeigen" : "👥 Mehr Profile anzeigen";
+}
+
+// ===== FOLLOWERS =====
+async function loadFollowers() {
+    try {
+        const url = "https://api.scratch.mit.edu/users/" + username + "/followers";
+        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+        const followers = JSON.parse(data.contents);
+
+        const firstGrid = document.getElementById("followers-grid");
+        const moreGrid = document.getElementById("followers-more");
+        const btn = document.getElementById("followers-btn");
+
+        followers.slice(0, 5).forEach(u => {
+            firstGrid.appendChild(createUserCard(u));
+        });
+
+        if (followers.length > 5) {
+            followers.slice(5).forEach(u => {
+                moreGrid.appendChild(createUserCard(u));
+            });
+            btn.style.display = "block";
+        }
+    } catch (err) {
+        console.log("Fehler beim Laden von Followern:", err);
+        document.getElementById("followers-grid").innerHTML = "<p>⚠️ Follower konnten nicht geladen werden.</p>";
+    }
+}
+
+function toggleFollowers() {
+    const moreGrid = document.getElementById("followers-more");
+    const btn = document.getElementById("followers-btn");
+    moreGrid.classList.toggle("show");
+    btn.textContent = moreGrid.classList.contains("show") ? "👥 Weniger Follower anzeigen" : "👥 Mehr Follower anzeigen";
+}
+
+function createUserCard(user) {
+    const card = document.createElement("div");
+    card.className = "user-card";
+    const name = user.username || "Unbekannt";
+    const image = user.profile?.images?.["90x90"] || "https://cdn2.scratch.mit.edu/get_image/user/default_90x90.png";
+    card.innerHTML = '<img src="' + image + '">' +
+        '<h3>' + name + '</h3>' +
+        '<p>Scratcher</p>';
+    card.onclick = function() { window.open("https://scratch.mit.edu/users/" + name + "/", "_blank"); };
+    return card;
+}
+
+function openProject(id) {
+    document.getElementById("player").style.display = "flex";
+    document.getElementById("frame").src = "https://turbowarp.org/" + id + "/embed";
+}
+
+function closePlayer() {
     document.getElementById("player").style.display = "none";
     document.getElementById("frame").src = "";
 }
 
+// Load all data
 loadProjects();
+loadFavorites();
+loadFollowing();
+loadFollowers();
 </script>
 
 </body>
