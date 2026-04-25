@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>dem13wi Planet Minecraft</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    overflow-x: hidden;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.navbar .logo {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.navbar ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar ul li {
+    margin: 0 15px;
+}
+
+.navbar ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    transition: 0.3s;
+    border-radius: 5px;
+}
+
+.navbar ul li a:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    padding: 50px;
+    padding-top: 80px; /* wegen navbar */
+}
+
+.profile img {
+    object-fit: cover;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    border: 6px solid white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.content {
+    margin-left: 60px;
+}
+
+.content h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.button {
+    display: inline-block;
+    padding: 12px 20px;
+    margin-top: 10px;
+    background: white;
+    color: black;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: 0.3s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.button:hover {
+    background: #eee;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+.button i {
+    margin-right: 8px;
+}
+
+/* PROJECTS */
+.projects {
+    background: white;
+    color: black;
+    padding: 40px;
+    margin-top: -50px; /* overlap */
+    border-radius: 20px 20px 0 0;
+    position: relative;
+    z-index: 1;
+}
+
+.projects h2 {
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #000000;
+    border-radius: 15px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}
+
+.card img {
+    width: 100%;
+    transition: 0.3s;
+}
+
+.card:hover img {
+    filter: brightness(1.1);
+}
+
+.card-info {
+    padding: 10px;
+    color: white;
+}
+
+.player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: none;
+    flex-direction: column;
+    z-index: 2000;
+}
+
+.player iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+}
+
+.controls {
+    background: #111;
+    padding: 10px;
+    text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #333;
+    color: white;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #555;
+}
+
+.comments {
+    background: #111;
+    padding: 40px;
+    color: white;
+}
+
+.comments h2 {
+    text-align: center;
+    font-size: 2em;
+}
+
+.comment-box {
+    max-width: 600px;
+    margin: auto;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    border-radius: 10px;
+    border: none;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #222;
+    color: white;
+}
+
+.comment {
+    background: #222;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.footer {
+    background: #000;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9em;
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="logo"><i class="fas fa-gamepad"></i> dem13wi_2</div>
+    <ul>
+        <li><a href="#profile"><i class="fas fa-user"></i> Profil</a></li>
+        <li><a href="#projects"><i class="fas fa-cube"></i> Projekte</a></li>
+        <li><a href="#infos"><i class="fas fa-info-circle"></i> Infos</a></li>
+    </ul>
+</nav>
+
+<div class="container" id="profile">
+    <div class="content">
+        <div class="profile">
+        <img src="https://static.planetminecraft.com/files/avatar/5534307_1.jpg">
+    </div>
+        <h1>Willkommen auf meine Vorschau zu meinem Planet Minecraft Profil</h1>
+        <p>Entdecke meine Minecraft-Projekte!</p>
+        <a class="button" href="https://www.planetminecraft.com/member/dem13wi/" target="_blank">
+            <i class="fas fa-external-link-alt"></i> Mein Planet Minecraft Profil
+        </a>
+    </div>
+</div>
+
+<div class="projects" id="projects">
+    <h2>🪓 Meine Planet Minecraft Projekte</h2>
+    <div class="grid" id="projects-grid"></div>
+</div>
+
+<div class="comments" id="infos">
+    <h2>Über mich</h2>
+    <p>Ich erstelle coole Minecraft-Projekte auf Planet Minecraft. Schau dir meine Maps, Texture Packs und mehr an!</p>
+    <p>Andere Accounts: <a href="https://www.planetminecraft.com/member/dem13wi_original/" target="_blank">Planet Minecraft Dem13wi_original</a></p>
+</div>
+
+<footer class="footer">
+    <p>kein © 2026 dem13wi_2 - nicht Alle Rechte vorbehalten<i class="fas fa-heart"></i></p>
+</footer>
+
+<script>
+const container = document.getElementById("projects-grid");
+
+async function loadProjects() {
+    try {
+        // Versuche, Projekte von der Member-Seite zu scrapen
+        const memberUrl = "https://www.planetminecraft.com/member/dem13wi_original/";
+        const proxyUrl = `https://corsproxy.io/?${memberUrl}`;
+        const response = await fetch(proxyUrl);
+        const htmlText = await response.text();
+
+        // Parse HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, "text/html");
+
+        // Finde Projekt-Links in der Content Gallery
+        const projectLinks = doc.querySelectorAll('.content-gallery a[href*="/project/"], .content-gallery a[href*="/mod/"], .content-gallery a[href*="/texture-pack/"]');
+
+        const projects = Array.from(projectLinks).slice(0, 10).map(link => {
+            const title = link.textContent.trim() || "Kein Titel";
+            const href = link.href;
+            // Extrahiere Bild-URL (falls vorhanden, sonst Platzhalter)
+            const img = link.querySelector('img') || link.previousElementSibling?.querySelector('img');
+            const image = img ? img.src : "https://static.planetminecraft.com/files/avatar/default.png";
+            // Downloads aus dem Text extrahieren (z.B. "150")
+            const downloadMatch = link.textContent.match(/(\d+)/);
+            const downloads = downloadMatch ? parseInt(downloadMatch[1]) : 0;
+
+            return { title, link: href, image, downloads };
+        });
+
+        if (projects.length > 0) {
+            renderProjects(projects);
+            return;
+        }
+    } catch (err) {
+        console.log("Scraping fehlgeschlagen, versuche RSS:", err);
+    }
+
+    // Fallback auf RSS (falls verfügbar)
+    try {
+        const rssUrl = "https://www.planetminecraft.com/rss/projects/";
+        const proxyUrl = `https://corsproxy.io/?${rssUrl}`;
+        const response = await fetch(proxyUrl);
+        const rssText = await response.text();
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(rssText, "text/xml");
+        const items = xmlDoc.querySelectorAll("item");
+
+        if (items.length > 0) {
+            const projects = Array.from(items).slice(0, 5).map(item => ({
+                title: item.querySelector("title")?.textContent || "Kein Titel",
+                link: item.querySelector("link")?.textContent || "#",
+                image: "https://static.planetminecraft.com/files/avatar/default.png",
+                downloads: 0
+            }));
+            renderProjects(projects);
+            return;
+        }
+    } catch (err) {
+        console.log("RSS fehlgeschlagen:", err);
+    }
+
+    // Fehlerbehandlung: Projekte konnten nicht geladen werden
+    showError();
+}
+
+function renderProjects(projects) {
+    container.innerHTML = "";
+    projects.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            <img src="${p.image}" alt="${p.title}" onerror="this.src='https://static.planetminecraft.com/files/avatar/default.png'">
+            <div class="card-info">
+                <b>${p.title}</b><br>
+                ⬇ ${p.downloads} Downloads
+            </div>
+        `;
+
+        card.onclick = () => window.open(p.link, '_blank');
+        container.appendChild(card);
+    });
+}
+
+function showError() {
+    container.innerHTML = "<p style='text-align: center; color: #999; font-size: 1.2em;'>⚠️ Projects could not load</p>";
+    setTimeout(() => {
+        window.location.href = "./error.html";
+    }, 1000);
+}
+
+loadProjects();
+</script>
+
+</body>
+</html>
