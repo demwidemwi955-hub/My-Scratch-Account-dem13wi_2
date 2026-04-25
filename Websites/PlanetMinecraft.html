@@ -288,9 +288,9 @@ const container = document.getElementById("projects-grid");
 
 async function loadProjects() {
     try {
-        // Versuche, Projekte von der Member-Seite zu scrapen
-        const memberUrl = "https://www.planetminecraft.com/member/dem13wi_original/";
-        const proxyUrl = `https://corsproxy.io/?${memberUrl}`;
+        // Versuche, Projekte von der Submissions-Seite zu scrapen
+        const submissionsUrl = "https://www.planetminecraft.com/member/dem13wi_original/submissions/?morder=order_latest";
+        const proxyUrl = `https://corsproxy.io/?${submissionsUrl}`;
         const response = await fetch(proxyUrl);
         const htmlText = await response.text();
 
@@ -298,21 +298,20 @@ async function loadProjects() {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlText, "text/html");
 
-        // Finde Projekt-Links in der Content Gallery
-        const projectLinks = doc.querySelectorAll('.content-gallery a[href*="/project/"], .content-gallery a[href*="/mod/"], .content-gallery a[href*="/texture-pack/"]');
+        // Finde Projekt-Links
+        const projectLinks = doc.querySelectorAll('a[href*="/project/"], a[href*="/mod/"], a[href*="/texture-pack/"]');
 
         const projects = Array.from(projectLinks).slice(0, 10).map(link => {
             const title = link.textContent.trim() || "Kein Titel";
             const href = link.href;
-            // Extrahiere Bild-URL (falls vorhanden, sonst Platzhalter)
-            const img = link.querySelector('img') || link.previousElementSibling?.querySelector('img');
-            const image = img ? img.src : "https://static.planetminecraft.com/files/avatar/default.png";
+            // Extrahiere Bild-URL (Platzhalter, da keine Bilder auf der Liste)
+            const image = "https://static.planetminecraft.com/files/avatar/default.png";
             // Downloads aus dem Text extrahieren (z.B. "150")
             const downloadMatch = link.textContent.match(/(\d+)/);
             const downloads = downloadMatch ? parseInt(downloadMatch[1]) : 0;
 
             return { title, link: href, image, downloads };
-        });
+        }).filter(p => p.title !== "Kein Titel" && p.downloads > 0); // Filtere nur gültige Projekte
 
         if (projects.length > 0) {
             renderProjects(projects);
