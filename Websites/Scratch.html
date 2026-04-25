@@ -417,13 +417,13 @@ const username = "dem13wi_2";
 async function loadProjects() {
     try {
         const url = "https://api.scratch.mit.edu/users/" + username + "/projects";
-        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
         const res = await fetch(proxyUrl);
         const data = await res.json();
         
         let projects = [];
         try {
-            projects = typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents;
+            projects = Array.isArray(data) ? data : (typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents);
         } catch (e) {
             console.error("JSON Parse Fehler Projects:", e, data.contents);
             return;
@@ -475,13 +475,13 @@ function toggleProjects() {
 async function loadFavorites() {
     try {
         const url = "https://api.scratch.mit.edu/users/" + username + "/favorites";
-        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
         const res = await fetch(proxyUrl);
         const data = await res.json();
         
         let favorites = [];
         try {
-            favorites = typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents;
+            favorites = Array.isArray(data) ? data : (typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents);
         } catch (e) {
             console.error("JSON Parse Fehler Favorites:", e, data.contents);
             return;
@@ -518,13 +518,13 @@ function toggleFavorites() {
 async function loadFollowing() {
     try {
         const url = "https://api.scratch.mit.edu/users/" + username + "/following";
-        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
         const res = await fetch(proxyUrl);
         const data = await res.json();
         
         let following = [];
         try {
-            following = typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents;
+            following = Array.isArray(data) ? data : (typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents);
         } catch (e) {
             console.error("JSON Parse Fehler Following:", e, data.contents);
             return;
@@ -561,13 +561,13 @@ function toggleFollowing() {
 async function loadFollowers() {
     try {
         const url = "https://api.scratch.mit.edu/users/" + username + "/followers";
-        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
         const res = await fetch(proxyUrl);
         const data = await res.json();
         
         let followers = [];
         try {
-            followers = typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents;
+            followers = Array.isArray(data) ? data : (typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents);
         } catch (e) {
             console.error("JSON Parse Fehler Followers:", e, data.contents);
             return;
