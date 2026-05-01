@@ -402,7 +402,7 @@ textarea {
 <body>
 
 <nav class="navbar">
-    <div class="logo"><i class="fas fa-gamepad"></i> dem13wi_2</div>
+    <div class="logo"><i class="fas fa-gamepad"></i> <span id="navbar-username">dem13wi_2</span></div>
     <ul>
         <li><a href="#profile"><i class="fas fa-user"></i> Profil</a></li>
         <li><a href="#projects"><i class="fas fa-gamepad"></i> Spiele</a></li>
@@ -412,12 +412,12 @@ textarea {
 
 <div class="container" id="profile">
     <div class="profile">
-        <img src="https://cdn2.scratch.mit.edu/get_image/user/164025705_90x90.png">
+        <img id="profile-image" src="https://cdn2.scratch.mit.edu/get_image/user/default_90x90.png">
     </div>
 
     <div class="content">
         <h1>Hallo</h1>
-        <p>Ich bin <b>dem13wi_2</b></p>
+        <p>Ich bin <b id="profile-username">dem13wi_2</b></p>
         <a class="button" href="https://scratch.mit.edu/users/dem13wi_2/" target="_blank">
             <i class="fas fa-external-link-alt"></i> Mein Scratch Profil
         </a>
@@ -489,7 +489,52 @@ textarea {
 </footer>
 
 <script>
-const username = "dem13wi_2";
+// Get username from URL parameter or default to dem13wi_2
+function getUsername() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("u") || "dem13wi_2";
+}
+
+let username = getUsername();
+
+// Update UI with username
+function updateUsername() {
+    document.getElementById("navbar-username").textContent = username;
+    document.getElementById("profile-username").textContent = username;
+    document.getElementById("profile-image").src = `https://cdn2.scratch.mit.edu/get_image/user/default_90x90.png`;
+}
+
+// Load user profile info
+async function loadUserProfile() {
+    try {
+        const url = "https://api.scratch.mit.edu/users/" + username;
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
+        const res = await fetch(proxyUrl);
+        let data = res.ok ? await res.json() : null;
+        
+        if (!data && res.headers.get('content-type')?.includes('text')) {
+            const text = await res.text();
+            try {
+                data = typeof text === 'string' ? JSON.parse(text) : text;
+            } catch (e) {
+                console.error("JSON Parse Fehler:", e);
+                return;
+            }
+        }
+        
+        if (data) {
+            const profileData = Array.isArray(data) ? data[0] : data;
+            if (profileData.profile?.images?.["90x90"]) {
+                document.getElementById("profile-image").src = profileData.profile.images["90x90"];
+            }
+        }
+    } catch (err) {
+        console.log("Fehler beim Laden des Profils:", err);
+    }
+}
+
+updateUsername();
+loadUserProfile();
 
 // ===== PROJECTS =====
 async function loadProjects() {
